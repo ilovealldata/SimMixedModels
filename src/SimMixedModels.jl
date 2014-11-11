@@ -8,6 +8,7 @@ module SimMixedModels
 	  NestedData,
 	  CrossedDataBAL,
 	  NestedDataBAL,
+	  ReplinearOnegroup, 
 	  makedata2waylinear
 
 	abstract MixedData

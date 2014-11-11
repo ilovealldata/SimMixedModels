@@ -3,8 +3,9 @@ type CrossedDataBAL <: CrossedData
 	NFac::Int64
 	Nlvl::Vector{Int64}
 	VC::Vector{Float64}
-    n::Int64
-    dat::DataFrame
+  re::Array{Any,1}
+  n::Int64
+  dat::DataFrame
 end
 
 function CrossedDataBAL(Mu::Vector{Float64}, NFac::Int64, Nlvl::Vector{Int64}, VC::Vector{Float64})
@@ -17,7 +18,10 @@ function CrossedDataBAL(Mu::Vector{Float64}, NFac::Int64, Nlvl::Vector{Int64}, V
     else 
       y=Mu + rand(Normal(0.0,VC[end]),n)
       dat=DataFrame(y=y) 
-    end   
+    end
+
+    re={ zeros(nl[i]) for i in 1:(nll-1)}  
+
     for i in 1:(nll-1)
     	if i==1
     		Z=kron(speye(nl[i]),sparse(ones(prod(nl[i+1:end]))))
@@ -25,12 +29,12 @@ function CrossedDataBAL(Mu::Vector{Float64}, NFac::Int64, Nlvl::Vector{Int64}, V
            	Z=kron(sparse(ones(prod(nl[1:(i-1)]))),kron(speye(nl[i]),sparse(ones(prod(nl[i+1:end])))))
         end
         if VC[i] > 0.0
-    	  	rv=rand(Normal(0.0,VC[i]),nl[i])
-    	  	dat[:y]+=Z*rv
+    	  	re[i]=rand(Normal(0.0,VC[i]),nl[i])
+    	  	dat[:y]+=Z*re[i]
     	end
         dat[symbol("x$i")]=pool( convert(Array{Int64,1}, Z*[1:nl[i]]) )
     end
     dat[symbol("id")]=pool( [1:n] )
-    CrossedDataBAL(Mu,NFac,Nlvl,VC,n,dat);
+    CrossedDataBAL(Mu,NFac,Nlvl,VC,re,n,dat);
  end
 

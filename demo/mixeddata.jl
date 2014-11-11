@@ -2,26 +2,33 @@ using  DataFrames, RDatasets, Distributions
 using MixedModels,SelectMixedModels
 using SimMixedModels
 
+srand(1234)
 betaT=[1.0,2.0];
-sig10T=[1,0.9,0.9,1];
-sig2T=0.1;
+sig10T=[1,0.5,0.5,1];
+sig2T=0.5;
 esigT=1.0;
 timepoint=5
 numsub=100
 numgrp=10
 
-fr = makedata2waylinear(timepoint,numsub,numgrp,betaT,sig10T,sig2T,esigT)
+fr = makedata2waylinear(timepoint,numsub,numgrp,betaT,sig10T,sig2T,esigT,1.0)
+x1= pool(repeat([1:125],inner=[4]))
+fr.dat[:y]=fr.dat[:y] + repeat(rand(Normal(0.0,0.3),125),inner=[4])
+fr.dat[:x1]=x1 
 
-mg  = fit(lmmg( y~ time+(time|id)+(1|grp),fr))
+mg  = fit(lmm( y~ time+(time|id)+(1|x1)+(1|grp),fr.dat))
+
+mg  = fit(lmm( y~ time+(time|id)+(1|x1),fr.dat))
+
 
 Nsim= 1000
 estimate = zeros(Nsim,9)
 
 @time {for i in 1:Nsim
 
-	fr = makedata2waylinear(timepoint,numsub,numgrp,betaT,sig10T,sig2T,esigT)
+	fr = makedata2waylinear(timepoint,numsub,numgrp,betaT,sig10T,sig2T,esigT,1.0)
 	#m = fit(lmm( y~ time+(time|id),fr))
-	m=fit(lmmg( y~ time+(time|id)+(1|grp),fr))
+	m=fit(lmmg( y~ time+(time|id)+(1|grp),fr.dat))
     a=marBIC(m)
     b=marAIC(m)
     c=conAIC(m)
@@ -35,8 +42,8 @@ end}
 
 mu = [0.0]
 nf =2
-nlvl = [4,8,10]
-vc = [3.0, 2.0, 1.0]
+nlvl = [6,6,4]
+vc = [3.0, 0.0, 1.0]
 prod(nlvl)
 
 dat1 = CrossedDataBAL(mu,nf,nlvl,vc)
@@ -58,7 +65,7 @@ dat22 = NestedDataBAL(mu,nf,nlvl,vc)
 
 @time m11 = fit(lmm(y ~ 1 + (1|x1)+(1|x2)+(1|x3), dat11.dat));
 
-@time m21 = fit(lmm(y ~ 1 + (1|x1)+(1|x2)+(1|x3), dat22.dat));
+@time m21 = fit(lmm(y ~ 1 + (1|x3)+(1|x2)+(1|x1), dat22.dat));
 
 
 
