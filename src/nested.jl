@@ -33,6 +33,8 @@ function NestedDataBAL(Mu::Vector{Float64}, NFac::Int64, Nlvl::Vector{Int64}, VC
         dat[symbol("x$i")]=pool( convert(Array{Int64,1},Z* [1:prod(nl[1:i])]) )
     end
     dat[symbol("id")]=pool([1:n] )
+    # reverse random effect array since the order of covariate should be sorted descending order
+    re=reverse(re)
     NestedDataBAL(Mu,NFac,Nlvl,VC,re,n,dat);
  end
 
