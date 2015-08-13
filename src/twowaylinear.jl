@@ -52,3 +52,35 @@ function makedata2waylinear(Timelength::Int64,Idnum::Int64, Groupnum::Int64,
 		              Sig10, Sig2, Esig, re, n, dat)
 end 
 
+# generate new y conditional on same random effects in md
+function newdata2waylinear(md::ReplinearOnegroup, timegap::Float64)
+	n=md.Timelength*md.Idnum
+	grplength=convert(Int64,n/md.Groupnum)
+	ggrp = [1:md.Groupnum]
+	idd=[1:md.Idnum]
+	ttime=[0:(md.Timelength-1)]*timegap
+	id=pool(repeat(idd,inner=[md.Timelength]))
+	time= repeat(ttime,outer=[md.Idnum])
+	grp=pool(repeat(ggrp,inner=[grplength]))
+	n=size(id,1)
+	X = hcat(repeat([1.0],outer=[n]),time)
+	sig1=reshape(md.Sig10,2,2)
+	#r1=vec(rand(MvNormal([0.0,0.0], sig1),Idnum))
+	r1=md.re[1]
+	Z1=kron(speye(md.Idnum),sparse(hcat(ones(md.Timelength),[1:md.Timelength])))
+	if md.Sig2 > 0.0
+	  #r2=rand(Normal(0.0,Sig2),Groupnum)
+	  r2=md.re[2]
+	  Z2 = kron(speye(md.Groupnum),sparse(ones(grplength)))
+	  y = X*md.Beta+Z1*r1+Z2*r2+rand(Normal(0.0,md.Esig),n)
+	  re={r1,r2}
+    else
+      y = X*Beta+Z1*r1+rand(Normal(0.0,md.Esig),n)
+      re={r1}
+    end  	
+    
+	dat=DataFrame(time=time,id=id,grp=grp,y=y)
+	ReplinearOnegroup(md.Timelength,md.Idnum, md.Groupnum, md.Beta, 
+		              md.Sig10, md.Sig2, md.Esig, md.re, n, dat)
+end 
+
