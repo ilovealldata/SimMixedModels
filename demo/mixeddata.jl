@@ -11,6 +11,7 @@ timepoint=5
 numsub=100
 numgrp=10
 
+
 fr = makedata2waylinear(timepoint,numsub,numgrp,betaT,sig10T,sig2T,esigT,1.0)
 x1= pool(repeat([1:125],inner=[4]))
 fr.dat[:y]=fr.dat[:y] + repeat(rand(Normal(0.0,0.3),125),inner=[4])
@@ -37,7 +38,15 @@ estimate = zeros(Nsim,9)
 	estimate[i,7:9]=[c.likelihood c.df c.value]
 end}
 
+timevec=[2.0, 4.0, 6.0, 8.0, 10.0, 24.0 ]
+betaT=[1.0,2.0];
+sig10T=[1,0.5,0.5,1];
+sig2T=0.5;
+esigT=1.0;
+numsub=10
+numgrp=5
 
+fr = makedata2waylinear(timevec,numsub,numgrp,betaT,sig10T,sig2T,esigT,1.0)
 ##-   rand(14314111)
 
 mu = [0.0]

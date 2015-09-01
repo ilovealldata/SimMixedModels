@@ -53,7 +53,7 @@ function makedata2waylinear(Timelength::Int64,Idnum::Int64, Groupnum::Int64,
 end 
 
 function makedata2waylinear(Timepoints::Array{Float64,1},Idnum::Int64, Groupnum::Int64,
-		Beta::Array{Float64,1} ,Sig10::Array{Float64,1},Sig2::Float64,Esig::Float64, timegap::Float64 )
+		Beta::Array{Float64,1} ,Sig10::Array{Float64,1},Sig2::Float64,Esig::Float64 )
 	
 	nt = length(Timepoints)
 	n=nt*Idnum
